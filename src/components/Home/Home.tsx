@@ -1,34 +1,18 @@
-import React,{ useState, useRef  } from 'react';
+import React,{ useState, useRef, useContext  } from 'react';
 import { Link, useHistory } from "react-router-dom";
-import { RouteComponentProps } from "react-router";
+// import { RouteComponentProps } from "react-router";
+import{ Input, InputButton, Lists, List} from "../Styled"
+import { credientialDetailsContext } from "../../App";
+import { ITask, IUserInfo } from "../../data/Credentials";
 
-
-interface ITask{
-    id: number;
-    task: string;
-    date: string;
-}
-
-interface ITasks {
-    tasks: Array<ITask>;
-}
-
-interface IUserInfo {
-    username: string;
-    password: string | number;
-    todolists: (ITask)[];
-}
-
-interface IData{
-    data:Array<IUserInfo>;
-    updateData:(NewTask: IUserInfo) => void
-}
-
-
-export const  Home:React.FC<IData & RouteComponentProps> = (props) =>{
+export const  Home:React.FC = () =>{
     const taskField = useRef<HTMLInputElement>(null) ;
+    const CredentialsContext = useContext(credientialDetailsContext)
+    // console.log("CredentialsContext",CredentialsContext);
     // eslint-disable-next-line
-    const [data, setdata] = useState<any>(props.data);
+    const [data, setdata] = useState<any>(CredentialsContext.data);
+    // console.log("CredentialsContext",CredentialsContext);
+    const [warning, setwarning] = useState(false)
     let history = useHistory();
     let storage = localStorage.getItem('crediential');
     let storageDetails = JSON.parse(storage || '{}'); 
@@ -57,27 +41,30 @@ export const  Home:React.FC<IData & RouteComponentProps> = (props) =>{
             // console.log((tasksList as Array<ITask>))
             let todolists = (tasksList as (ITask)[])
             // let NewTask = {username,password,newTaskList}
-            props.updateData && props.updateData({username,password,todolists})
+            CredentialsContext.updateData && CredentialsContext.updateData({username,password,todolists})
+        }else{
+            setwarning(true)
         }
     }
     const handleLogout = () =>{
         history.push("/");
     }
     return (
-            <section className="container">
-                <div id="todo-lists" className="lists">
-                <h1 id="display-name">{`Hello ${storageDetails.user}`}</h1>
+            <section className="container"> 
+                <Lists>
+                    <h1 id="display-name">{`Hello ${storageDetails.user}`}</h1>
                     {tasksList?.map((tasks:any,i:any) => (
-                        <Link className={"lists"} to={`/home:${i}`}>
-                            <div key={`${tasks.id}`} className={"list"} onDoubleClick={()=> handleclick(i)} >
+                        <Link key={`${tasks.id}`} style={{textDecoration:"none",color:"black"}} to={`/home:${i}`}>
+                            <List  onDoubleClick={()=> handleclick(i)} >
                                 { tasks.task +" "+ tasks.date}
-                            </div>
+                            </List>
                         </Link>
                     ))}<br/>
-                     <input type="text" name="task" ref={taskField}  placeholder="task"/> 
-                     <input type="button" value="Submit" onClick={handleSubmit}/><br/>
-                     <input type="button" value="Logout" onClick={handleLogout} />                     
-                </div>
+                    <Input type="text" name="task" ref={taskField}  placeholder="task"/> 
+                    <InputButton type="button" value="Submit" onClick={handleSubmit}/><br/>
+                    {warning && <span style={{color:'red'}}>Enter the proper Task Name ()</span>} <br/>
+                    <InputButton type="button" value="Logout" onClick={handleLogout} />                     
+                </Lists>
             </section>
     )
 }

@@ -1,26 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState,createContext } from 'react';
 import './App.css';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { LoginForm , Home} from "./components";
-import { credientialDetails } from "./data/Credentials";
+import { credientialDetails, IUserInfo, IData } from "./data/Credentials";
 
 
-interface ITask{
-  id: number;
-  task: string;
-  date: string;
-}
 
-interface ITasks {
-  tasks: Array<ITask>;
-}
-
-interface IUserInfo {
-  username: string;
-  password: string | number;
-  todolists: Array<ITask>;
-}
-
+export const credientialDetailsContext = createContext<IData>({data:[],updateData:()=>{}});
 function App() {
   const [data, setdata] = useState(credientialDetails)
   // const [displayName, setDisplayName] = useState<string>("Ananthesh");
@@ -51,12 +37,19 @@ function App() {
       {/* <Class name={displayName} updatename={handlechange} welcomeNote={ welcomeGreet } /> */}
       <Router>
         <Switch>
-              <Route default exact path="/"> <LoginForm data={data}/> </Route>
+              {/* <Route default exact path="/"> <LoginForm data={data}/> </Route>
               <Route  path="/home" render={(props) => <Home {...props} data={data} updateData={updateData} />}/>
-              <Route  path="/home:task" render={(props) => <Home {...props} data={data} updateData={updateData} />}/>
+              <Route  path="/home:task" render={(props) => <Home {...props} data={data} updateData={updateData} />}/> */}
+
+              {/* Below are the snap of by using the context */}
+              <credientialDetailsContext.Provider value={{data,updateData}}>
+                <Route default exact path="/"> <LoginForm  /> </Route>
+                <Route  path="/home" render={(props) => <Home  />}/>
+                <Route  path="/home:task" render={(props) => <Home />}/>
+              </credientialDetailsContext.Provider >
+
         </Switch>
       </Router>
-      {/* <LoginForm/> */}
     </div>
   );
 }

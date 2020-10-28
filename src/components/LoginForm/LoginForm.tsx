@@ -1,27 +1,13 @@
-import React ,{ useState,useEffect, FormEvent } from 'react';
+import React ,{ useState,useEffect, FormEvent, useContext } from 'react';
 import {  useHistory } from "react-router-dom";
-interface ITask{
-    task: string;
-    date: string;
-    id: number;
-}
+import{ Input, InputButton} from "../Styled";
+import { credientialDetailsContext } from "../../App";
 
-interface ITasks {
-    tasks: Array<ITask>;
-}
-
-interface IUserInfo {
-    username: string;
-    password: string | number;
-    todolists: Array<ITask>;
-}
-
-interface IData{
-    data:Array<IUserInfo>;
-}
-export const  LoginForm:React.FC<IData> = (props:IData) =>{
+export const  LoginForm:React.FC = () =>{
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [warning, setwarning] = useState(false);
+    const CredentialsContext = useContext(credientialDetailsContext)
     let history = useHistory();
     useEffect(() => {
         let storage = localStorage.getItem('crediential');
@@ -50,11 +36,14 @@ export const  LoginForm:React.FC<IData> = (props:IData) =>{
             localStorage.setItem('crediential', JSON.stringify(responseFromService));
         }
         // console.log(props.data)
-        for(let keys of Object.keys(props.data)){
-            let value = props.data[Number(keys)];
+        for(let keys of Object.keys(CredentialsContext.data)){
+            let value = CredentialsContext.data[Number(keys)];
             if(username === value.username && password === (value.password).toString()){
                 // console.log(username)
                 history.push("/home");
+                break;
+            }else{
+                setwarning(true)
             }
         }
     }
@@ -63,14 +52,15 @@ export const  LoginForm:React.FC<IData> = (props:IData) =>{
             <div className={"formfields"}>  
                 <form onSubmit={loginFun} id="login-form">
                     <label>UserName
-                        <input type="text" name="username"  value={username} id="#username" onChange={(e)=>{setUsername(e.target.value)}} placeholder="Username"/> <br/>
+                        <Input type="text" name="username"  value={username} id="#username" onChange={(e:React.ChangeEvent<HTMLInputElement>)=>{setUsername(e.target.value)}} placeholder="Username"/> <br/>
                     </label>
                     <label >Password 
-                            <input type="password" name="password"  value={password} id="#password" onChange={(e)=>{setPassword(e.target.value)}} placeholder="Password" /><br/>
+                        <Input type="password" name="password"  value={password} id="#password" onChange={(e:React.ChangeEvent<HTMLInputElement>)=>{setPassword(e.target.value)}} placeholder="Password" /><br/>
                     </label> 
                     {/* <input type="submit" value="Login" /> */}
                     {/* <Link to="/home"> */}
-                        <input type="submit" value="Login" />
+                        <InputButton type="submit" value="Login" /> <br/>
+                    {warning && <span style={{color:'red'}}>Enter the proper Name and Password</span>}
                     {/* </Link> */}
                 </form>
             </div>
